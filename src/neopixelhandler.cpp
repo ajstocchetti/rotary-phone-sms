@@ -25,6 +25,7 @@ void setAllAsColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w)
   pixels.show();
 }
 void turnOff() { setAllAsColor(0, 0, 0, 0); }
+void turnNeoPixelOff() { turnOff(); }
 void turnRed() { setAllAsColor(255, 0, 0, 0); }
 void turnGreen() { setAllAsColor(0, 255, 0, 0); }
 void turnBlue() { setAllAsColor(0, 0, 255, 0); }

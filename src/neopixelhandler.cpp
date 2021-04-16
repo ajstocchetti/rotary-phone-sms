@@ -1,6 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
-  #include <avr/power.h>
+#include <avr/power.h>
 #endif
 
 const int neoPixelPin = 25;
@@ -10,16 +10,11 @@ const int numNeoPixels = 7;
 #define PIXEL_TYPE NEO_GRBW + NEO_KHZ800
 Adafruit_NeoPixel pixels(numNeoPixels, neoPixelPin, PIXEL_TYPE);
 
-void initiateNeopixel()
-{
-  pixels.begin();
-}
+void initiateNeopixel() { pixels.begin(); }
 
-void setAllAsColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w)
-{
+void setAllAsColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   uint32_t color = pixels.Color(r, g, b, w);
-  for (uint8_t i = 0; i < numNeoPixels; i++)
-  {
+  for (uint8_t i = 0; i < numNeoPixels; i++) {
     pixels.setPixelColor(i, color);
   }
   pixels.show();
@@ -31,11 +26,8 @@ void turnGreen() { setAllAsColor(0, 255, 0, 0); }
 void turnBlue() { setAllAsColor(0, 0, 255, 0); }
 void turnWhite() { setAllAsColor(0, 0, 0, 255); }
 
-
-void notifyNeopixel(const int num)
-{
-  switch (num)
-  {
+void notifyNeopixel(const int num) {
+  switch (num) {
     case -10:
       turnOff();
       break;

@@ -1,36 +1,40 @@
 #include <Arduino.h>
+#include <CircularBuffer.h>
+
 #include "neopixelhandler.h"
 #include "smsRecipient.h"
 #include "text.h"
-#include <CircularBuffer.h>
-
 
 CircularBuffer<int, 5> inputSequence;
 
 void noop() { return; }
 class OperatorMode {
-  private:
-    bool isActiveB;
-    String modeName;
-    void (*onEnable)();
-    void (*onDisable)();
-  public:
-    OperatorMode(String act, bool enab = false, void (*onEn)() = noop, void (*onDis)() = noop) {
-      modeName = act;
-      isActiveB = enab;
-      onEnable = onEn;
-      onDisable = onDis;
-    }
-    void printStatus();
-    bool isActive();
-    void toggle();
+ private:
+  bool isActiveB;
+  String modeName;
+  void (*onEnable)();
+  void (*onDisable)();
+
+ public:
+  OperatorMode(String act, bool enab = false, void (*onEn)() = noop,
+               void (*onDis)() = noop) {
+    modeName = act;
+    isActiveB = enab;
+    onEnable = onEn;
+    onDisable = onDis;
+  }
+  void printStatus();
+  bool isActive();
+  void toggle();
 };
 
 bool OperatorMode::isActive() { return isActiveB; }
 void OperatorMode::toggle() {
   isActiveB = !isActiveB;
-  if (isActiveB) onEnable();
-  else onDisable();
+  if (isActiveB)
+    onEnable();
+  else
+    onDisable();
 }
 void OperatorMode::printStatus() {
   Serial.print("Mode ");
@@ -38,7 +42,6 @@ void OperatorMode::printStatus() {
   Serial.print(" is ");
   Serial.println(isActive() ? "enabled" : "disabled");
 }
-
 
 // mode 3 - set text
 // mode 4 - set recipient number
@@ -69,44 +72,38 @@ void checkOperatorBits(const int input) {
   if (!inputSequence.isFull()) return;
   if (input < 1) return;
 
-  if (inputSequence[1] == -15
-      && inputSequence[2] == -10
-      && inputSequence[3] == -15
-      && inputSequence[4] == -10) {
-        // toggle flag
-        uint8_t flagIndex = input - 1;
-        operatorFlags[flagIndex].toggle();
+  if (inputSequence[1] == -15 && inputSequence[2] == -10 &&
+      inputSequence[3] == -15 && inputSequence[4] == -10) {
+    // toggle flag
+    uint8_t flagIndex = input - 1;
+    operatorFlags[flagIndex].toggle();
 
-        for (uint8_t x = 0; x < 5; x++) {
-          operatorFlags[x].printStatus();
-        }
+    for (uint8_t x = 0; x < 5; x++) {
+      operatorFlags[x].printStatus();
+    }
   }
 }
 
-void broadcastPhoneInteraction(const int phoneInput)
-{
-  if (isSerialSet())
-  {
-    switch (phoneInput)
-    {
-    case -100:
-      Serial.println("ERROR");
-      break;
-    case -15:
-      Serial.println("Line open");
-      break;
-    case -10:
-      Serial.println("Hung up");
-      break;
-    default:
-      // TODO: error check for negative numbers?
-      Serial.print("Dialed ");
-      Serial.println(phoneInput);
-      break;
+void broadcastPhoneInteraction(const int phoneInput) {
+  if (isSerialSet()) {
+    switch (phoneInput) {
+      case -100:
+        Serial.println("ERROR");
+        break;
+      case -15:
+        Serial.println("Line open");
+        break;
+      case -10:
+        Serial.println("Hung up");
+        break;
+      default:
+        // TODO: error check for negative numbers?
+        Serial.print("Dialed ");
+        Serial.println(phoneInput);
+        break;
     }
   }
-  if (isNeopixelSet())
-    notifyNeopixel(phoneInput);
+  if (isNeopixelSet()) notifyNeopixel(phoneInput);
   if (isSetMsgSet()) {
     if (notifySmsMessageText(phoneInput)) {
       Serial.println(getSmsMessage().c_str());
@@ -118,26 +115,14 @@ void broadcastPhoneInteraction(const int phoneInput)
     Serial.println(getSmsNumber().c_str());
   }
 
-    // handle operator mode checks _after_ alerting others
-    checkOperatorBits(phoneInput);
+  // handle operator mode checks _after_ alerting others
+  checkOperatorBits(phoneInput);
 }
 
-void alertHungUp()
-{
-  broadcastPhoneInteraction(-10);
-}
+void alertHungUp() { broadcastPhoneInteraction(-10); }
 
-void alertLineOpen()
-{
-  broadcastPhoneInteraction(-15);
-}
+void alertLineOpen() { broadcastPhoneInteraction(-15); }
 
-void alertError()
-{
-  broadcastPhoneInteraction(-100);
-}
+void alertError() { broadcastPhoneInteraction(-100); }
 
-void alertNumberDialed(const int num)
-{
-  broadcastPhoneInteraction(num);
-}
+void alertNumberDialed(const int num) { broadcastPhoneInteraction(num); }

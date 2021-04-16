@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "neopixelhandler.h"
+#include "text.h"
 #include <CircularBuffer.h>
 
 
@@ -41,16 +42,21 @@ OperatorMode serialMode = OperatorMode("Serial", true);
 OperatorMode neopixelMode = OperatorMode("NeoPixel", true, noop, turnNeoPixelOff);
 OperatorMode placeholderMode = OperatorMode("Placeholder", true);
 
+// mode 3 - set text
+// mode 4 - set recipient number
+// mode 5 - print text and number
+// mode 6 - clear text and number
+// mode 7 - send sms
 OperatorMode operatorFlags[5] = {
     OperatorMode("Serial", true),
     OperatorMode("NeoPixel", true, noop, turnNeoPixelOff),
-    OperatorMode("Placeholder"),
+    OperatorMode("Set SMS Message"),
     OperatorMode("Placeholder"),
     OperatorMode("Placeholder"),
 };
 bool isSerialSet() { return operatorFlags[0].isActive(); }
 bool isNeopixelSet() { return operatorFlags[1].isActive(); }
-
+bool isSetMsgSet() { return operatorFlags[2].isActive(); }
 
 void checkOperatorBits(const int input) {
   inputSequence.unshift(input);
@@ -102,9 +108,14 @@ void broadcastPhoneInteraction(const int phoneInput)
   }
   if (isNeopixelSet())
     notifyNeopixel(phoneInput);
+  if (isSetMsgSet()) {
+    if (notifySmsMessageText(phoneInput)) {
+      Serial.println(getSmsMessage().c_str());
+    }
+  }
 
-  // handle operator mode checks _after_ alerting others
-  checkOperatorBits(phoneInput);
+    // handle operator mode checks _after_ alerting others
+    checkOperatorBits(phoneInput);
 }
 
 void alertHungUp()

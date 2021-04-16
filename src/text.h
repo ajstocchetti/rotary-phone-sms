@@ -1,4 +1,4 @@
 #include <string>
-std::string charEntered(char c);
-void textHungUp();
-void textPickedUp();
+
+bool notifySmsMessageText(const int input);
+std::string getSmsMessage();

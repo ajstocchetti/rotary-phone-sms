@@ -1,58 +1,87 @@
 #include <Arduino.h>
 #include "neopixelhandler.h"
-// #include <boost/circular_buffer.hpp>
-
-uint operatorModeMask = 0b000011;
-/*
-  bitmask parts
-  1: log serial
-  2: neopixel
-*/
+#include <CircularBuffer.h>
 
 
-/*
-  hang up: -10
-  line open: -15
-  error: -100
-*/
+CircularBuffer<int, 5> inputSequence;
 
-void broadcastMessage(const int phoneInput)
+
+bool operatorFlags[5] = {true, true, false, false, false};
+bool isSerialSet() { return operatorFlags[0]; }
+bool isNeopixelSet() { return operatorFlags[1]; }
+
+
+void checkOperatorBits(const int input) {
+  inputSequence.unshift(input);
+
+  // to set the an operator bit, need to:
+  // - hang up
+  // - pick up
+  // - hang up
+  // - pick up
+  // - enter bit number
+  if (!inputSequence.isFull()) return;
+  if (input < 1) return;
+
+  if (inputSequence[1] == -15
+      && inputSequence[2] == -10
+      && inputSequence[3] == -15
+      && inputSequence[4] == -10) {
+        // toggle flag
+        uint8_t flagIndex = input - 1;
+        operatorFlags[flagIndex] = !operatorFlags[flagIndex];
+
+        for (uint8_t x = 0; x < 5; x++) {
+          Serial.print("Flag "); Serial.print(x); Serial.print(" is "); Serial.println(operatorFlags[x]);
+        }
+  }
+}
+
+void broadcastPhoneInteraction(const int phoneInput)
 {
-  if ((operatorModeMask && 0b1) == 0b1) {
+  if (isSerialSet())
+  {
     switch (phoneInput)
     {
-      case -100:
-        Serial.println("ERROR"); break;
-      case -15:
-        Serial.println("Line open"); break;
-      case -10:
-        Serial.println("Hung up"); break;
-      default:
-        // TODO: error check for negative numbers?
-        Serial.print("Dialed ");
-        Serial.println(phoneInput);
-        break;
+    case -100:
+      Serial.println("ERROR");
+      break;
+    case -15:
+      Serial.println("Line open");
+      break;
+    case -10:
+      Serial.println("Hung up");
+      break;
+    default:
+      // TODO: error check for negative numbers?
+      Serial.print("Dialed ");
+      Serial.println(phoneInput);
+      break;
     }
   }
-  if ((operatorModeMask & 0b10) == 0b10) notifyNeopixel(phoneInput);
+  if (isNeopixelSet())
+    notifyNeopixel(phoneInput);
+
+  // handle operator mode checks _after_ alerting others
+  checkOperatorBits(phoneInput);
 }
 
 void alertHungUp()
 {
-  broadcastMessage(-10);
+  broadcastPhoneInteraction(-10);
 }
 
 void alertLineOpen()
 {
-  broadcastMessage(-15);
+  broadcastPhoneInteraction(-15);
 }
 
 void alertError()
 {
-  broadcastMessage(-100);
+  broadcastPhoneInteraction(-100);
 }
 
 void alertNumberDialed(const int num)
 {
-  broadcastMessage(num);
+  broadcastPhoneInteraction(num);
 }

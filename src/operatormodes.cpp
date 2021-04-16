@@ -9,14 +9,15 @@ void OperatorMode::toggle() {
     isActiveB = true;
     onEnable();
   }
+  printStatus();
 }
 void OperatorMode::disable() {
   if (!isActiveB) return;
-  else onDisable();
+  else toggle();
 }
 void OperatorMode::enable() {
   if (isActiveB) return;
-  else onEnable();
+  else toggle();
 }
 void OperatorMode::printStatus() {
   Serial.print("Mode ");

@@ -60,10 +60,12 @@ void initializeOperatorModes() {
 }
 
 void printOperatorStatuses() {
+  Serial.println("-------------------------------------");
   const int numOps = numOperatorModes;
   for (uint8_t x = 0; x < numOps; x++) {
     operatorFlags[x].printStatus();
   }
+  Serial.println("-------------------------------------");
 }
 
 bool checkOperatorBits(const int input) {

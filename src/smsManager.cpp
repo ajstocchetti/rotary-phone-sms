@@ -3,13 +3,12 @@
 #include "smsMessageContent.h"
 
 void printSmsMessage() {
-  Serial.println("SMS Message:");
-  Serial.print("\t");
+  Serial.print("SMS Message: ");
   Serial.println(getSmsMessage().c_str());
 }
 
 void printSmsRecipient() {
-  Serial.print("SMS Recipient: ");
+  Serial.print("Recipient phone number: ");
   Serial.println(getSmsNumber().c_str());
 }
 

@@ -2,61 +2,73 @@
 #include <CircularBuffer.h>
 
 #include "neopixelhandler.h"
-#include "operatormode.h"
+#include "operatormodes.h"
 #include "smsManager.h"
 #include "smsMessageContent.h"
 #include "smsRecipient.h"
 
 CircularBuffer<int, 5> inputSequence;
 
+void broadcastPhoneInteraction(const int);
+void alertHungUp() { broadcastPhoneInteraction(-10); }
+void alertLineOpen() { broadcastPhoneInteraction(-15); }
+void alertError() { broadcastPhoneInteraction(-100); }
+void alertNumberDialed(const int num) { broadcastPhoneInteraction(num); }
+
 void printOperatorStatuses();
-void enableSmsMsgMode();
-void enableSmsRcptMode();
-void enableSmsManagerMode();
 void noop() { return; }
-OperatorMode operatorFlags[5] = {
-    OperatorMode("Serial", printOperatorStatuses, printOperatorStatuses),
+
+const int numOperatorModes = 6;
+OperatorMode operatorFlags[numOperatorModes] = {
+    OperatorMode("Serial", printOperatorStatuses, noop),
     OperatorMode("NeoPixel", noop, turnNeoPixelOff),
-    OperatorMode("Set SMS Message", enableSmsMsgMode, noop),
-    OperatorMode("Set SMS Recipient", enableSmsRcptMode, noop),
-    OperatorMode("SMS Manager", enableSmsMsgMode, noop),
+    OperatorMode("Set SMS Message", noop, noop),
+    OperatorMode("Set SMS Recipient", noop, noop),
+    OperatorMode("SMS Manager", printSmsInformation, printSmsInformation),
+    OperatorMode("Operator Mode Display", printOperatorStatuses, printOperatorStatuses),
 };
-
-void initializeOperatorModes() {
-  // start with Serial enabled
-  if (!operatorFlags[0].isActive()) {
-    operatorFlags[0].toggle();
-  }
-}
-
 bool isSerialSet() { return operatorFlags[0].isActive(); }
 bool isNeopixelSet() { return operatorFlags[1].isActive(); }
 bool isSetMsgSet() { return operatorFlags[2].isActive(); }
+void toggleMsgMode() {
+  operatorFlags[2].toggle();
+  if (operatorFlags[2].isActive()) {
+    operatorFlags[3].disable();
+    operatorFlags[4].disable();
+  }
+}
 bool isSetRecipientSet() { return operatorFlags[3].isActive(); }
+void toggleRecipientMode() {
+  operatorFlags[3].toggle();
+  if (operatorFlags[3].isActive()) {
+    operatorFlags[2].disable();
+    operatorFlags[4].disable();
+  }
+}
+bool isSetManagerSet() { return operatorFlags[4].isActive(); }
+void toggleManagerMode() {
+  operatorFlags[4].toggle();
+  if (operatorFlags[4].isActive()) {
+    operatorFlags[2].disable();
+    operatorFlags[3].disable();
+  }
+}
+
+void initializeOperatorModes() {
+  // start with Serial enabled
+  operatorFlags[0].enable();
+}
 
 void printOperatorStatuses() {
-  int numOps = sizeof(operatorFlags) / sizeof(operatorFlags[0]);
+  const int numOps = numOperatorModes;
   for (uint8_t x = 0; x < numOps; x++) {
     operatorFlags[x].printStatus();
   }
 }
 
-void enableSmsMsgMode() {
-  operatorFlags[3].disable();
-  operatorFlags[4].disable();
-}
-void enableSmsRcptMode() {
-  operatorFlags[2].disable();
-  operatorFlags[4].disable();
-}
-void enableSmsManagerMode() {
-  operatorFlags[2].disable();
-  operatorFlags[3].disable();
-  printSmsInformation();
-}
-
-void checkOperatorBits(const int input) {
+bool checkOperatorBits(const int input) {
   inputSequence.unshift(input);
+  bool changedMode = false;
 
   // to set the an operator bit, need to:
   // - hang up
@@ -64,18 +76,43 @@ void checkOperatorBits(const int input) {
   // - hang up
   // - pick up
   // - enter bit number
-  if (!inputSequence.isFull()) return;
-  if (input < 1) return;
+  if (!inputSequence.isFull()) return false;
+  if (input < 1) return false;
 
   if (inputSequence[1] == -15 && inputSequence[2] == -10 &&
       inputSequence[3] == -15 && inputSequence[4] == -10) {
     // toggle flag
     uint8_t flagIndex = input - 1;
-    operatorFlags[flagIndex].toggle();
+    switch (flagIndex) {
+      case 0:
+      case 1:
+      case 5:
+        operatorFlags[flagIndex].toggle();
+        changedMode = true;
+        break;
+      case 2:
+        toggleMsgMode();
+        changedMode = true;
+        break;
+      case 3:
+        toggleRecipientMode();
+        changedMode = true;
+        break;
+      case 4:
+        toggleManagerMode();
+        changedMode = true;
+        break;
+      default:
+        break;
+    }
   }
+  return changedMode;
 }
 
 void broadcastPhoneInteraction(const int phoneInput) {
+  // First check if this is a mode change operation
+  if (checkOperatorBits(phoneInput)) return;
+
   if (isSerialSet()) {
     switch (phoneInput) {
       case -100:
@@ -108,15 +145,4 @@ void broadcastPhoneInteraction(const int phoneInput) {
       printSmsRecipient();
     }
   }
-
-  // handle operator mode checks _after_ alerting others
-  checkOperatorBits(phoneInput);
 }
-
-void alertHungUp() { broadcastPhoneInteraction(-10); }
-
-void alertLineOpen() { broadcastPhoneInteraction(-15); }
-
-void alertError() { broadcastPhoneInteraction(-100); }
-
-void alertNumberDialed(const int num) { broadcastPhoneInteraction(num); }

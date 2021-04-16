@@ -11,11 +11,9 @@ void printSmsMessage() {
 void printSmsRecipient() {
   Serial.print("SMS Recipient: ");
   Serial.println(getSmsNumber().c_str());
-  Serial.println("");
 }
 
 void printSmsInformation() {
-  Serial.println("SMS Information:");
   printSmsRecipient();
   printSmsMessage();
 }

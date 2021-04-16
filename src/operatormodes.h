@@ -24,6 +24,7 @@ class OperatorMode {
   }
   void printStatus();
   bool isActive();
-  void toggle();
+  void enable();
   void disable();
+  void toggle();
 };

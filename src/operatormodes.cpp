@@ -1,16 +1,22 @@
-#include "operatormode.h"
+#include "operatormodes.h"
 
 bool OperatorMode::isActive() { return isActiveB; }
 void OperatorMode::toggle() {
-  isActiveB = !isActiveB;
-  if (isActiveB)
-    onEnable();
-  else
+  if (isActive()) {
+    isActiveB = false;
     onDisable();
+  } else {
+    isActiveB = true;
+    onEnable();
+  }
 }
 void OperatorMode::disable() {
   if (!isActiveB) return;
-  else disable();
+  else onDisable();
+}
+void OperatorMode::enable() {
+  if (isActiveB) return;
+  else onEnable();
 }
 void OperatorMode::printStatus() {
   Serial.print("Mode ");

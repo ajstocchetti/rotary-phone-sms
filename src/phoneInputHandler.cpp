@@ -3,11 +3,13 @@
 
 #include "neopixelhandler.h"
 #include "smsRecipient.h"
-#include "text.h"
+#include "smsMessageContent.h"
 
 CircularBuffer<int, 5> inputSequence;
 
 void noop() { return; }
+void printOperatorStatuses();
+
 class OperatorMode {
  private:
   bool isActiveB;
@@ -49,7 +51,7 @@ void OperatorMode::printStatus() {
 // mode 6 - clear text and number
 // mode 7 - send sms
 OperatorMode operatorFlags[5] = {
-    OperatorMode("Serial", true),
+    OperatorMode("Serial", true, printOperatorStatuses, printOperatorStatuses),
     OperatorMode("NeoPixel", false, noop, turnNeoPixelOff),
     OperatorMode("Set SMS Message"),
     OperatorMode("Set SMS Recipient", true),
@@ -59,6 +61,13 @@ bool isSerialSet() { return operatorFlags[0].isActive(); }
 bool isNeopixelSet() { return operatorFlags[1].isActive(); }
 bool isSetMsgSet() { return operatorFlags[2].isActive(); }
 bool isSetRecipientSet() { return operatorFlags[3].isActive(); }
+
+void printOperatorStatuses() {
+  int numOps = sizeof(operatorFlags) / sizeof(operatorFlags[0]);
+  for (uint8_t x = 0; x < numOps; x++) {
+    operatorFlags[x].printStatus();
+  }
+}
 
 void checkOperatorBits(const int input) {
   inputSequence.unshift(input);
@@ -77,10 +86,6 @@ void checkOperatorBits(const int input) {
     // toggle flag
     uint8_t flagIndex = input - 1;
     operatorFlags[flagIndex].toggle();
-
-    for (uint8_t x = 0; x < 5; x++) {
-      operatorFlags[x].printStatus();
-    }
   }
 }
 

@@ -4,12 +4,13 @@ std::string recipientNumber = "";
 char intToChar(int digit);
 bool checkForEmptyCode();
 
-void notifySmsRecipientNumber(const int input) {
+bool notifySmsRecipientNumber(const int input) {
   if (input > 0 && input < 11) {
     recipientNumber.push_back(intToChar(input));
+    checkForEmptyCode();
+    return true;
   }
-
-  checkForEmptyCode();
+  return false;
 }
 
 bool checkForEmptyCode() {

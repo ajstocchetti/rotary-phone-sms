@@ -84,6 +84,7 @@ void processReading(int latestReading) {
 void setup() {
   Serial.begin(9600);
   currentState = on_hook;
+  initializeOperatorModes();
   initiateNeopixel();
 }
 

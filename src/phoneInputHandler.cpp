@@ -2,61 +2,33 @@
 #include <CircularBuffer.h>
 
 #include "neopixelhandler.h"
-#include "smsRecipient.h"
+#include "operatormode.h"
+#include "smsManager.h"
 #include "smsMessageContent.h"
+#include "smsRecipient.h"
 
 CircularBuffer<int, 5> inputSequence;
 
-void noop() { return; }
 void printOperatorStatuses();
-
-class OperatorMode {
- private:
-  bool isActiveB;
-  String modeName;
-  void (*onEnable)();
-  void (*onDisable)();
-
- public:
-  OperatorMode(String act, bool enab = false, void (*onEn)() = noop,
-               void (*onDis)() = noop) {
-    modeName = act;
-    isActiveB = enab;
-    onEnable = onEn;
-    onDisable = onDis;
-  }
-  void printStatus();
-  bool isActive();
-  void toggle();
-};
-
-bool OperatorMode::isActive() { return isActiveB; }
-void OperatorMode::toggle() {
-  isActiveB = !isActiveB;
-  if (isActiveB)
-    onEnable();
-  else
-    onDisable();
-}
-void OperatorMode::printStatus() {
-  Serial.print("Mode ");
-  Serial.print(modeName);
-  Serial.print(" is ");
-  Serial.println(isActive() ? "enabled" : "disabled");
-}
-
-// mode 3 - set text
-// mode 4 - set recipient number
-// mode 5 - print text and number
-// mode 6 - clear text and number
-// mode 7 - send sms
+void enableSmsMsgMode();
+void enableSmsRcptMode();
+void enableSmsManagerMode();
+void noop() { return; }
 OperatorMode operatorFlags[5] = {
-    OperatorMode("Serial", true, printOperatorStatuses, printOperatorStatuses),
-    OperatorMode("NeoPixel", false, noop, turnNeoPixelOff),
-    OperatorMode("Set SMS Message"),
-    OperatorMode("Set SMS Recipient", true),
-    OperatorMode("Placeholder"),
+    OperatorMode("Serial", printOperatorStatuses, printOperatorStatuses),
+    OperatorMode("NeoPixel", noop, turnNeoPixelOff),
+    OperatorMode("Set SMS Message", enableSmsMsgMode, noop),
+    OperatorMode("Set SMS Recipient", enableSmsRcptMode, noop),
+    OperatorMode("SMS Manager", enableSmsMsgMode, noop),
 };
+
+void initializeOperatorModes() {
+  // start with Serial enabled
+  if (!operatorFlags[0].isActive()) {
+    operatorFlags[0].toggle();
+  }
+}
+
 bool isSerialSet() { return operatorFlags[0].isActive(); }
 bool isNeopixelSet() { return operatorFlags[1].isActive(); }
 bool isSetMsgSet() { return operatorFlags[2].isActive(); }
@@ -67,6 +39,20 @@ void printOperatorStatuses() {
   for (uint8_t x = 0; x < numOps; x++) {
     operatorFlags[x].printStatus();
   }
+}
+
+void enableSmsMsgMode() {
+  operatorFlags[3].disable();
+  operatorFlags[4].disable();
+}
+void enableSmsRcptMode() {
+  operatorFlags[2].disable();
+  operatorFlags[4].disable();
+}
+void enableSmsManagerMode() {
+  operatorFlags[2].disable();
+  operatorFlags[3].disable();
+  printSmsInformation();
 }
 
 void checkOperatorBits(const int input) {
@@ -108,16 +94,19 @@ void broadcastPhoneInteraction(const int phoneInput) {
         break;
     }
   }
+
   if (isNeopixelSet()) notifyNeopixel(phoneInput);
+
   if (isSetMsgSet()) {
     if (notifySmsMessageText(phoneInput)) {
-      Serial.println(getSmsMessage().c_str());
+      printSmsMessage();
     }
   }
 
   if (isSetRecipientSet()) {
-    notifySmsRecipientNumber(phoneInput);
-    Serial.println(getSmsNumber().c_str());
+    if (notifySmsRecipientNumber(phoneInput)) {
+      printSmsRecipient();
+    }
   }
 
   // handle operator mode checks _after_ alerting others

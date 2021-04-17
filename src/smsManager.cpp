@@ -23,6 +23,7 @@ void printSmsInformation() {
 }
 
 void sendSms() {
+  // https://github.com/ademuri/twilio-esp32-client/blob/master/examples/send_sms/send_sms.ino
   Serial.println("Preparing to send sms...");
   Twilio *twilio;
   delay(1000);

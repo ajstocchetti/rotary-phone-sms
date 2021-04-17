@@ -1,6 +1,9 @@
 #include <Arduino.h>
-#include "smsRecipient.h"
+#include <WiFi.h>
+
+#include "secrets.h"
 #include "smsMessageContent.h"
+#include "smsRecipient.h"
 
 void printSmsMessage() {
   Serial.print("SMS Message: ");
@@ -15,4 +18,34 @@ void printSmsRecipient() {
 void printSmsInformation() {
   printSmsRecipient();
   printSmsMessage();
+}
+
+void setupWifi() {
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.print("Connecting to wifi network ");
+  Serial.print(ssid);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, ssidPass);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void notifySmsManager(const int input) {
+  switch (input) {
+    case 7:
+      setupWifi();
+      break;
+    default:
+      break;
+  }
 }

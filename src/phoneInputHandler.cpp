@@ -68,7 +68,7 @@ void printOperatorStatuses() {
   Serial.println("-------------------------------------");
 }
 
-bool checkOperatorBits(const int input) {
+bool operatorModeCheck(const int input) {
   inputSequence.unshift(input);
   bool changedMode = false;
 
@@ -113,7 +113,7 @@ bool checkOperatorBits(const int input) {
 
 void broadcastPhoneInteraction(const int phoneInput) {
   // First check if this is a mode change operation
-  if (checkOperatorBits(phoneInput)) return;
+  if (operatorModeCheck(phoneInput)) return;
 
   if (isSerialSet()) {
     switch (phoneInput) {
@@ -146,5 +146,9 @@ void broadcastPhoneInteraction(const int phoneInput) {
     if (notifySmsRecipientNumber(phoneInput)) {
       printSmsRecipient();
     }
+  }
+
+  if (isSetManagerSet()) {
+    notifySmsManager(phoneInput);
   }
 }

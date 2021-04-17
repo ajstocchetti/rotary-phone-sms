@@ -4,6 +4,8 @@
 #include "secrets.h"
 #include "smsMessageContent.h"
 #include "smsRecipient.h"
+#include "twilio.hpp"
+
 
 void printSmsMessage() {
   Serial.print("SMS Message: ");
@@ -20,6 +22,26 @@ void printSmsInformation() {
   printSmsMessage();
 }
 
+void sendSms() {
+  Serial.println("Preparing to send sms...");
+  Twilio *twilio;
+  delay(1000);
+
+  // String toNumber = "+1";
+  // toNumber += getSmsNumber();
+
+  twilio = new Twilio(twilioAccountSid, twilioAuthToken);
+
+  String response;
+  bool success = twilio->send_message(to_number, twilioFromNumber,
+                                      getSmsMessage(), response);
+  if (success) {
+    Serial.println("Sent message successfully!");
+  } else {
+    Serial.println(response);
+  }
+}
+
 void setupWifi() {
   // We start by connecting to a WiFi network
   Serial.println();
@@ -27,6 +49,7 @@ void setupWifi() {
   Serial.print(ssid);
 
   WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
   WiFi.begin(ssid, ssidPass);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -35,15 +58,18 @@ void setupWifi() {
   }
 
   Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.print("WiFi connected - IP address: ");
   Serial.println(WiFi.localIP());
 }
+
 
 void notifySmsManager(const int input) {
   switch (input) {
     case 7:
       setupWifi();
+      break;
+    case 4:
+      sendSms();
       break;
     default:
       break;

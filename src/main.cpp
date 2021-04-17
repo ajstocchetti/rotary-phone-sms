@@ -3,11 +3,11 @@
 #include "neopixelhandler.h"
 #include "phoneInputHandler.h"
 
-const int analogPin = 27;
+const int analogPin = 34;
 const bool debugHardware = false;
 
 const int highThreshold = 3800;    // 900; // anything over high is hung
-const int lowThreshold = 3100;     // 550; // anything under low is open
+const int lowThreshold = 1100;     // 550; // anything under low is open
 const int delayTime = 20;          // milliseconds;
 const int steady_state_count = 6;  // number count_since_change needs to pass to
                                    // be considered in a static state
@@ -90,9 +90,7 @@ void setup() {
 
 void loop() {
   int lineReading = getLineAnalogValue();
-  if (debugHardware == true) {
-    Serial.println(lineReading);
-  }
+  if (debugHardware == true) Serial.println(lineReading);
   processReading(lineReading);
   delay(delayTime);
 }

@@ -1,8 +1,8 @@
+#include <Arduino.h>
 #include <CircularBuffer.h>
+// #include <string>
 
-#include <string>
-
-std::string theMessage = "";
+String theMessage = "";
 CircularBuffer<int, 2> dialSequence;
 bool lastDialAddedChar = false;
 
@@ -23,16 +23,16 @@ bool notifySmsMessageText(const int input) {
   return lastDialAddedChar;
 }
 
-std::string getSmsMessage() { return theMessage; }
+String getSmsMessage() { return theMessage; }
 
-std::string addToMessage(char c) {
-  theMessage.push_back(c);
+String addToMessage(char c) {
+  theMessage += c;
   return theMessage;
 }
 
 bool deleteChar() {
-  if (!theMessage.empty()) {
-    theMessage.pop_back();
+  if (theMessage != "") {
+    theMessage.remove(theMessage.length() - 2);
     return true;
   } else {
     return false;

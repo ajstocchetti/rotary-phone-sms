@@ -1,4 +1,4 @@
-#include <string>
+#include <Arduino.h>
 
 bool notifySmsRecipientNumber(const int input);
-std::string getSmsNumber();
+String getSmsNumber();

@@ -1,12 +1,12 @@
-#include <string>
+#include <Arduino.h>
 
-std::string recipientNumber = "";
+String recipientNumber = "";
 char intToChar(int digit);
 bool checkForEmptyCode();
 
 bool notifySmsRecipientNumber(const int input) {
   if (input > 0 && input < 11) {
-    recipientNumber.push_back(intToChar(input));
+    recipientNumber += (intToChar(input));
     checkForEmptyCode();
     return true;
   }
@@ -28,7 +28,7 @@ bool checkForEmptyCode() {
   return false;
 }
 
-std::string getSmsNumber() { return recipientNumber; }
+String getSmsNumber() { return recipientNumber; }
 
 char intToChar(int digit) {
   // digit must be validated already

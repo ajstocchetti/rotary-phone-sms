@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <CircularBuffer.h>
-// #include <string>
 
 String theMessage = "";
 CircularBuffer<int, 2> dialSequence;
@@ -32,7 +31,7 @@ String addToMessage(char c) {
 
 bool deleteChar() {
   if (theMessage != "") {
-    theMessage.remove(theMessage.length() - 2);
+    theMessage.remove(theMessage.length() - 1);
     return true;
   } else {
     return false;

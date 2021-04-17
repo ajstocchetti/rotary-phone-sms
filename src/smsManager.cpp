@@ -9,12 +9,12 @@
 
 void printSmsMessage() {
   Serial.print("SMS Message: ");
-  Serial.println(getSmsMessage().c_str());
+  Serial.println(getSmsMessage());
 }
 
 void printSmsRecipient() {
   Serial.print("Recipient phone number: ");
-  Serial.println(getSmsNumber().c_str());
+  Serial.println(getSmsNumber());
 }
 
 void printSmsInformation() {
@@ -27,13 +27,13 @@ void sendSms() {
   Twilio *twilio;
   delay(1000);
 
-  // String toNumber = "+1";
-  // toNumber += getSmsNumber();
+  String toNumber = "+1";
+  toNumber += getSmsNumber();
 
   twilio = new Twilio(twilioAccountSid, twilioAuthToken);
 
   String response;
-  bool success = twilio->send_message(to_number, twilioFromNumber,
+  bool success = twilio->send_message(toNumber, twilioFromNumber,
                                       getSmsMessage(), response);
   if (success) {
     Serial.println("Sent message successfully!");

@@ -66,11 +66,14 @@ void setupWifi() {
 
 void notifySmsManager(const int input) {
   switch (input) {
-    case 7:
-      setupWifi();
+    case 1:
+      printSmsInformation();
       break;
     case 4:
       sendSms();
+      break;
+    case 7:
+      setupWifi();
       break;
     default:
       break;

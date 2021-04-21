@@ -22,27 +22,6 @@ void printSmsInformation() {
   printSmsMessage();
 }
 
-void sendSms() {
-  // https://github.com/ademuri/twilio-esp32-client/blob/master/examples/send_sms/send_sms.ino
-  Serial.println("Preparing to send sms...");
-  Twilio *twilio;
-  delay(1000);
-
-  String toNumber = "+1";
-  toNumber += getSmsNumber();
-
-  twilio = new Twilio(twilioAccountSid, twilioAuthToken);
-
-  String response;
-  bool success = twilio->send_message(toNumber, twilioFromNumber,
-                                      getSmsMessage(), response);
-  if (success) {
-    Serial.println("Sent message successfully!");
-  } else {
-    Serial.println(response);
-  }
-}
-
 void setupWifi() {
   // We start by connecting to a WiFi network
   Serial.println();
@@ -63,17 +42,37 @@ void setupWifi() {
   Serial.println(WiFi.localIP());
 }
 
+void sendSms() {
+  Serial.println("Preparing to send sms...");
+
+  if (WiFi.status() != WL_CONNECTED) setupWifi();
+
+  // https://github.com/ademuri/twilio-esp32-client/blob/master/examples/send_sms/send_sms.ino
+  Twilio *twilio;
+  delay(1000);
+
+  String toNumber = "+1";
+  toNumber += getSmsNumber();
+
+  twilio = new Twilio(twilioAccountSid, twilioAuthToken);
+
+  String response;
+  bool success = twilio->send_message(toNumber, twilioFromNumber,
+                                      getSmsMessage(), response);
+  if (success) {
+    Serial.println("Sent message successfully!");
+  } else {
+    Serial.println(response);
+  }
+}
 
 void notifySmsManager(const int input) {
   switch (input) {
     case 1:
       printSmsInformation();
       break;
-    case 4:
+    case 3:
       sendSms();
-      break;
-    case 7:
-      setupWifi();
       break;
     default:
       break;

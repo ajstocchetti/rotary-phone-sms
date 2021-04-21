@@ -24,7 +24,7 @@ OperatorMode operatorFlags[numOperatorModes] = {
     OperatorMode("NeoPixel", noop, turnNeoPixelOff),
     OperatorMode("Set SMS Message", noop, noop),
     OperatorMode("Set SMS Recipient", noop, noop),
-    OperatorMode("SMS Manager", printSmsInformation, printSmsInformation),
+    OperatorMode("SMS Manager", noop, noop),
     OperatorMode("Operator Mode Display", printOperatorStatuses, printOperatorStatuses),
 };
 bool isSerialSet() { return operatorFlags[0].isActive(); }

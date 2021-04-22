@@ -6,20 +6,22 @@
 const int analogPin = 34;
 const bool debugHardware = false;
 
-const int highThreshold = 3800;    // 900; // anything over high is hung
-const int lowThreshold = 1100;     // 550; // anything under low is open
-const int delayTime = 20;          // milliseconds;
-const int steady_state_count = 6;  // number count_since_change needs to pass to
-                                   // be considered in a static state
-// static state is when the phone is not dialin
-//   either off hung up or off the hook
+const int highThreshold = 3800;  // anything over high is hung
+const int lowThreshold = 1100;   // anything under low is open
+const int delayTime = 20;        // milliseconds;
+const int steady_state_count = 6;
+/*
+  steady_state_count: the number of line readings/intervals that need to pass
+  with the line reading being constant for the phone to be considered
+  at steady state (not dialing)
+*/
 
 enum lineState {
   on_hook,
   off_hook,
-  changing,
+  bad_read,
 };
-lineState currentState = off_hook;
+lineState currentState;
 int readingsInCurrentState = steady_state_count;  // start at steady state
 int pulseCount = 0;
 
@@ -31,8 +33,8 @@ lineState getStateType(const int analogVal) {
   if (analogVal > highThreshold) return on_hook;
   if (analogVal < lowThreshold) return off_hook;
 
-  // Serial.print("Error reading: "); Serial.println(analogVal);
-  return changing;
+  // if read is between high and low threshold, it is invalid
+  return bad_read;
 }
 
 void processReading(int latestReading) {
@@ -56,8 +58,7 @@ void processReading(int latestReading) {
         switch (currentState) {
           case on_hook: {
             alertHungUp();
-            // if (pulseCount > 1) { /* do something - hung up in middle of dial
-            // */ }
+            // TODO: consider throwing a warning if pulseCount > 1 -> hung up in the middle of dialing
             pulseCount = 0;
             break;
           }
@@ -70,7 +71,7 @@ void processReading(int latestReading) {
             pulseCount = 0;
             break;
           }
-          case changing: {
+          case bad_read: {
             alertError();
             // pulseCount = 0;
             break;
@@ -84,7 +85,6 @@ void processReading(int latestReading) {
 void setup() {
   Serial.begin(9600);
   currentState = on_hook;
-  initializeOperatorModes();
   initiateNeopixel();
 }
 

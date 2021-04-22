@@ -1,12 +1,6 @@
 #include <Arduino.h>
 
-/*
-  want to supply OperatorMode constructor with default noop paramters for
-  onEnable and onDisable, but getting weird linker errors... So no default params
-  for now
-  void noop() { return; }
-  OperatorMode(String name, void (*onEn)() = noop, void (*onDis)() = noop) {
-*/
+void noop();
 
 class OperatorMode {
  private:
@@ -16,9 +10,9 @@ class OperatorMode {
   void (*onDisable)();
 
  public:
-  OperatorMode(String name, void (*onEn)(), void (*onDis)()) {
+  OperatorMode(String name, bool startEnabled = false, void (*onEn)() = noop, void (*onDis)() = noop) {
     modeName = name;
-    isActiveB = false;
+    isActiveB = startEnabled;
     onEnable = onEn;
     onDisable = onDis;
   }

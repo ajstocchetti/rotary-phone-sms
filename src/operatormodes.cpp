@@ -1,5 +1,7 @@
 #include "operatormodes.h"
 
+void noop() { return; }
+
 bool OperatorMode::isActive() { return isActiveB; }
 void OperatorMode::toggle() {
   if (isActive()) {

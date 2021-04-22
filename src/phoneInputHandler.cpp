@@ -16,16 +16,15 @@ void alertError() { broadcastPhoneInteraction(-100); }
 void alertNumberDialed(const int num) { broadcastPhoneInteraction(num); }
 
 void printOperatorStatuses();
-void noop() { return; }
 
 const int numOperatorModes = 6;
 OperatorMode operatorFlags[numOperatorModes] = {
-    OperatorMode("Serial", printOperatorStatuses, noop),
-    OperatorMode("NeoPixel", noop, turnNeoPixelOff),
-    OperatorMode("Set SMS Message", noop, noop),
-    OperatorMode("Set SMS Recipient", noop, noop),
-    OperatorMode("SMS Manager", noop, noop),
-    OperatorMode("Operator Mode Display", printOperatorStatuses, printOperatorStatuses),
+    OperatorMode("Serial", true),
+    OperatorMode("NeoPixel", false, noop, turnNeoPixelOff),
+    OperatorMode("Set SMS Message"),
+    OperatorMode("Set SMS Recipient"),
+    OperatorMode("SMS Manager"),
+    OperatorMode("Operator Mode Display", false, printOperatorStatuses, printOperatorStatuses),
 };
 bool isSerialSet() { return operatorFlags[0].isActive(); }
 bool isNeopixelSet() { return operatorFlags[1].isActive(); }
@@ -52,11 +51,6 @@ void toggleManagerMode() {
     operatorFlags[2].disable();
     operatorFlags[3].disable();
   }
-}
-
-void initializeOperatorModes() {
-  // start with Serial enabled
-  operatorFlags[0].enable();
 }
 
 void printOperatorStatuses() {
@@ -111,28 +105,32 @@ bool operatorModeCheck(const int input) {
   return changedMode;
 }
 
-void broadcastPhoneInteraction(const int phoneInput) {
-  // First check if this is a mode change operation
-  if (operatorModeCheck(phoneInput)) return;
-
-  if (isSerialSet()) {
-    switch (phoneInput) {
-      case -100:
-        Serial.println("ERROR");
-        break;
-      case -15:
-        Serial.println("Line open");
-        break;
-      case -10:
-        Serial.println("Hung up");
-        break;
-      default:
-        // TODO: error check for negative numbers?
-        Serial.print("Dialed ");
-        Serial.println(phoneInput);
-        break;
-    }
+void logInputSerial(const int phoneInput) {
+  switch (phoneInput) {
+    case -100:
+      Serial.println("ERROR");
+      break;
+    case -15:
+      Serial.println("Line open");
+      break;
+    case -10:
+      Serial.println("Hung up");
+      break;
+    default:
+      // TODO: error check for negative numbers?
+      Serial.print("Dialed ");
+      Serial.println(phoneInput);
+      break;
   }
+}
+
+void broadcastPhoneInteraction(const int phoneInput) {
+  // First log (if logging enabled)
+  if (isSerialSet()) logInputSerial(phoneInput);
+
+  // Check if this is a mode change operation
+  // Do not send input to other handlers if this is an operator change
+  if (operatorModeCheck(phoneInput)) return;
 
   if (isNeopixelSet()) notifyNeopixel(phoneInput);
 

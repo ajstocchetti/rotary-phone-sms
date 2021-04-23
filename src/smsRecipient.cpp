@@ -54,4 +54,5 @@ char intToChar(int digit) {
     case 9:
       return '9';
   }
+  throw "Invalid input";
 }

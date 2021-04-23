@@ -1,4 +1,4 @@
-#include "operatormodes.h"
+#include "operator_modes_class.h"
 
 void noop() { return; }
 

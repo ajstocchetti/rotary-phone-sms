@@ -2,7 +2,7 @@
 #include <CircularBuffer.h>
 
 #include "neopixelhandler.h"
-#include "operatormodes.h"
+#include "operator_modes_class.h"
 #include "smsManager.h"
 #include "smsMessageContent.h"
 #include "smsRecipient.h"

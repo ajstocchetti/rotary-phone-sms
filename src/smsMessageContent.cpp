@@ -41,6 +41,10 @@ bool deleteChar() {
 void clearMessage() { theMessage = ""; }
 
 bool didInputAlterMsg(int charGroup, int charPosition) {
+  if (charGroup == 1 && charPosition == 0) {
+    addToMessage('1');
+    return true;
+  }
   if (charGroup == 1 && charPosition == 1) {
     addToMessage(' ');
     return true;
@@ -63,6 +67,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 2
+  if (charGroup == 2 && charPosition == 0) {
+    addToMessage('2');
+    return true;
+  }
   if (charGroup == 2 && charPosition == 1) {
     addToMessage('a');
     return true;
@@ -77,6 +85,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 3
+  if (charGroup == 3 && charPosition == 0) {
+    addToMessage('3');
+    return true;
+  }
   if (charGroup == 3 && charPosition == 1) {
     addToMessage('d');
     return true;
@@ -91,6 +103,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 4
+  if (charGroup == 4 && charPosition == 0) {
+    addToMessage('4');
+    return true;
+  }
   if (charGroup == 4 && charPosition == 1) {
     addToMessage('g');
     return true;
@@ -105,6 +121,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 5
+  if (charGroup == 5 && charPosition == 0) {
+    addToMessage('5');
+    return true;
+  }
   if (charGroup == 5 && charPosition == 1) {
     addToMessage('j');
     return true;
@@ -119,6 +139,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 6
+  if (charGroup == 6 && charPosition == 0) {
+    addToMessage('6');
+    return true;
+  }
   if (charGroup == 6 && charPosition == 1) {
     addToMessage('m');
     return true;
@@ -133,6 +157,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 7
+  if (charGroup == 7 && charPosition == 0) {
+    addToMessage('7');
+    return true;
+  }
   if (charGroup == 7 && charPosition == 1) {
     addToMessage('p');
     return true;
@@ -151,6 +179,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 8
+  if (charGroup == 8 && charPosition == 0) {
+    addToMessage('8');
+    return true;
+  }
   if (charGroup == 8 && charPosition == 1) {
     addToMessage('t');
     return true;
@@ -165,6 +197,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
   }
 
   // 9
+  if (charGroup == 9 && charPosition == 0) {
+    addToMessage('9');
+    return true;
+  }
   if (charGroup == 9 && charPosition == 1) {
     addToMessage('w');
     return true;
@@ -182,6 +218,10 @@ bool didInputAlterMsg(int charGroup, int charPosition) {
     return true;
   }
 
+  if (charGroup == 10 && charPosition == 0) {
+    addToMessage('0');
+    return true;
+  }
   if (charGroup == 10 && charPosition == 1) {
     deleteChar();
     return true;

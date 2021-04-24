@@ -3,9 +3,9 @@
 
 DialToText smsMessage;
 
-bool notifySmsMessageText(const int input) {
+bool notifySmsMessageText(const int input, bool logContent = true) {
   bool changed = smsMessage.onDialInput(input);
-  if (changed) {
+  if (changed && logContent) {
     printSmsMessage();
   }
   return changed;

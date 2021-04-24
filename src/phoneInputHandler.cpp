@@ -136,13 +136,7 @@ void broadcastPhoneInteraction(const int phoneInput) {
 
   if (isSetMsgSet()) { notifySmsMessageText(phoneInput); }
 
-  if (isSetRecipientSet()) {
-    if (notifySmsRecipientNumber(phoneInput)) {
-      printSmsRecipient();
-    }
-  }
+  if (isSetRecipientSet()) { notifySmsRecipientNumber(phoneInput); }
 
-  if (isSetManagerSet()) {
-    notifySmsManager(phoneInput);
-  }
+  if (isSetManagerSet()) { notifySmsManager(phoneInput); }
 }

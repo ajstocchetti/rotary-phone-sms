@@ -1,13 +1,15 @@
 #include <Arduino.h>
+#include "smsManager.h"
 
 String recipientNumber = "";
 char intToChar(int digit);
 bool checkForEmptyCode();
 
-bool notifySmsRecipientNumber(const int input) {
+bool notifySmsRecipientNumber(const int input, bool logContent = true) {
   if (input > 0 && input < 11) {
     recipientNumber += (intToChar(input));
     checkForEmptyCode();
+    if (logContent) { printSmsRecipient(); }
     return true;
   }
   return false;

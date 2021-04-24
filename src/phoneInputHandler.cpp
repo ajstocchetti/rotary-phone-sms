@@ -134,11 +134,7 @@ void broadcastPhoneInteraction(const int phoneInput) {
 
   if (isNeopixelSet()) notifyNeopixel(phoneInput);
 
-  if (isSetMsgSet()) {
-    if (notifySmsMessageText(phoneInput)) {
-      printSmsMessage();
-    }
-  }
+  if (isSetMsgSet()) { notifySmsMessageText(phoneInput); }
 
   if (isSetRecipientSet()) {
     if (notifySmsRecipientNumber(phoneInput)) {
